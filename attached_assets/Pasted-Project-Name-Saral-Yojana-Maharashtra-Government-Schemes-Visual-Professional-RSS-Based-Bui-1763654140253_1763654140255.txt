@@ -1,0 +1,167 @@
+Project Name: Saral Yojana – Maharashtra Government Schemes (Visual, Professional, RSS-Based)
+
+Build a complete, visually impressive, modern, professional website using:
+- Vite + React (frontend)
+- TailwindCSS (styling)
+- Lovable Cloud Functions (backend)
+- MongoDB (database for storing schemes)
+- Cron job for auto-updating schemes every 2 hours
+- RSS feed parsing (no Supabase, no external APIs)
+
+The website purpose:
+Display Maharashtra government schemes, especially farmer and public welfare schemes, by auto-fetching RSS feeds from official sources.  
+The UI must be visually appealing, with images, backgrounds, illustrations, and a modern hero layout.
+
+====================================
+  DESIGN & UI REQUIREMENTS
+====================================
+
+IMPORTANT: Make the UI visually rich and modern.  
+Do NOT make a simple minimalistic layout.  
+Follow high-quality Lovable project aesthetics.
+
+1. Homepage Hero Section (High Visual Impact)
+- Use a large hero background image or an image slider.
+- Background can be agriculture-themed, government service themed, or rural development themed.
+- The search box MUST be centered in a white rounded container on top of the hero background.
+- The search bar must include:
+   - Search input
+   - District dropdown
+   - Category dropdown
+   - Optional voice search button (mic icon)
+- The layout should be similar in feel to the reference screenshot provided by the user:
+   Large white search bar box placed on a purple/blue gradient/banner image.
+
+2. District & Category UI
+- District dropdown styled like the reference screenshot (clean, modern, fully visible dropdown list).
+- Additionally, include a “Browse by District” section below hero:
+   - Grid of well-designed district cards with icons + modern visuals.
+   - Each card should animate slightly on hover.
+- Include a “Browse by Category” grid below districts:
+   - Categories: Farmers, Agriculture, Women & Child, Students, Health, Housing, Rural Development, Social Security, Tribal.
+   - Each category card must include an icon and a modern card style (like top Lovable templates).
+
+3. Scheme Cards
+- Professional scheme cards with:
+   - Title
+   - District name
+   - Category
+   - Source badge (PIB, IndiaGov, MyGov)
+   - Publish date
+   - Short description (clamped)
+   - “Read More” deeply styled CTA button
+- Cards must be visually impressive, not plain white rectangles.
+
+4. Global Design
+- Light theme only.
+- Government-friendly colors:
+   Primary Blue: #1E40AF
+   Farmer Green: #2F855A
+   Amber Accent: #F59E0B
+   Clean background: #F7FAFC
+- Use vector icons (lucide or heroicons).
+- Use subtle shadows, rounded corners, hover transitions.
+
+5. Pages Required
+- Home (/)
+- Schemes List (/schemes)
+- District Page (/district/:name)
+- Category Page (/category/:name)
+- Scheme Details Page (/scheme/:id)
+- Contact Page (/contact)
+- About Page (/about)
+
+====================================
+  BACKEND REQUIREMENTS (NO SUPABASE)
+====================================
+
+Use Lovable Cloud Functions ONLY.
+
+Backend features:
+
+1. RSS Fetch Function
+Fetch the following feeds:
+- https://www.india.gov.in/rss/schemes.xml
+- https://pib.gov.in/RssFeed.aspx?ModId=6&Category=agriculture
+- https://www.mygov.in/feeds/schemes.xml
+
+2. Parse XML → JSON using rss-parser.
+
+3. Scoring Logic
+Each RSS item gets a relevance score:
++5  if contains “Maharashtra”
++4  if contains any district name
++3  if contains “farmer”, “agriculture”, “crop”
++2  if feed source is PIB agriculture
+
+Store items ONLY if score ≥ 5.
+
+4. Storage
+Use MongoDB Atlas (free tier) as database.
+Store:
+{
+  title,
+  description,
+  link,
+  publishedDate,
+  source,
+  relevanceScore,
+  districtDetected,
+  categoryDetected,
+  fetchedAt
+}
+
+5. Schemes API Function
+Create a cloud function accessible at:
+/api/schemes
+
+Supports:
+- district filter (?district=)
+- category filter (?category=)
+- search (?q=)
+- pagination (?page=&size=)
+- sort by latest
+
+6. Cron Job
+Run the RSS fetch function every 2 hours.
+After generating the data, save it into MongoDB.
+
+====================================
+  FRONTEND REQUIREMENTS
+====================================
+
+1. Use Vite + React + TypeScript.
+2. Use TailwindCSS for styling.
+3. Build:
+   - Hero section with background image or slider.
+   - Search box UI like reference screenshot.
+   - District dropdown + category dropdown.
+   - District grid.
+   - Category grid.
+   - Scheme cards.
+   - Footer with contact info + Google Form link.
+
+4. Multilingual (EN, MR, HI) for UI labels only.
+
+====================================
+  DELIVERABLES
+====================================
+
+Lovable must generate:
+- Full Vite + React project
+- Visual homepage with hero image
+- Professional district/category grids
+- Cloud functions:
+   * fetchRSS
+   * getSchemes
+- MongoDB integration
+- Cron job setup
+- API structure
+- All required pages
+- Tailwind configuration
+- README + .env example
+
+Ensure the final website looks visually attractive, modern, and professional—similar in quality to the best Lovable projects, with strong visuals and images.  
+The RSS backend must work reliably and automatically populate scheme data from the feeds.
+
+End of prompt.
