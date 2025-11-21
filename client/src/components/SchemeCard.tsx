@@ -1,9 +1,9 @@
 import { Link } from "wouter";
 import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Button, buttonVariants } from "./ui/button";
+import { buttonVariants } from "./ui/button";
 import { Calendar, MapPin, ArrowRight, CheckCircle2 } from "lucide-react";
-import { Scheme, CATEGORIES } from "@/lib/data";
+import { type Scheme, CATEGORIES } from "@/lib/data";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,7 @@ interface SchemeCardProps {
 }
 
 export function SchemeCard({ scheme }: SchemeCardProps) {
-  const category = CATEGORIES.find(c => c.id === scheme.category);
+  const category = CATEGORIES.find(c => c.id === scheme.categoryDetected);
   
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 border-border/50 overflow-hidden flex flex-col h-full bg-white">
@@ -22,7 +22,7 @@ export function SchemeCard({ scheme }: SchemeCardProps) {
             variant="secondary" 
             className={cn("rounded-md px-2.5 py-0.5 font-medium", category?.color || "bg-gray-100 text-gray-700")}
           >
-            {category?.name || scheme.category}
+            {category?.name || scheme.categoryDetected || "General"}
           </Badge>
           <Badge variant="outline" className="text-xs text-gray-500 border-gray-200">
             {scheme.source}
@@ -39,11 +39,11 @@ export function SchemeCard({ scheme }: SchemeCardProps) {
         <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
           <div className="flex items-center gap-1">
             <MapPin className="w-3.5 h-3.5" />
-            <span>{scheme.district || "All Maharashtra"}</span>
+            <span>{scheme.districtDetected || "All Maharashtra"}</span>
           </div>
           <div className="flex items-center gap-1">
             <Calendar className="w-3.5 h-3.5" />
-            <span>{scheme.publishDate ? format(new Date(scheme.publishDate), "MMM d, yyyy") : "N/A"}</span>
+            <span>{scheme.publishedDate ? format(new Date(scheme.publishedDate), "MMM d, yyyy") : "N/A"}</span>
           </div>
         </div>
         

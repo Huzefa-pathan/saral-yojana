@@ -1,19 +1,42 @@
 import { useParams, Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { MOCK_SCHEMES, CATEGORIES } from "@/lib/data";
+import { CATEGORIES } from "@/lib/data";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, MapPin, ExternalLink, Share2, FileText, CheckCircle } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, ExternalLink, Share2, FileText, CheckCircle, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { fetchSchemeById } from "@/lib/api";
 
 export default function SchemeDetails() {
   const { id } = useParams();
-  const scheme = MOCK_SCHEMES.find(s => s.id === id);
-  const category = scheme ? CATEGORIES.find(c => c.id === scheme.category) : null;
+  
+  const { data: scheme, isLoading, error } = useQuery({
+    queryKey: ["scheme", id],
+    queryFn: () => fetchSchemeById(id!),
+    enabled: !!id,
+  });
 
-  if (!scheme) {
+  const category = scheme ? CATEGORIES.find(c => c.id === scheme.categoryDetected) : null;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+            <p className="text-gray-500">Loading scheme details...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !scheme) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
@@ -40,14 +63,13 @@ export default function SchemeDetails() {
         </Link>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Header */}
           <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-white to-gray-50">
             <div className="flex flex-wrap gap-3 mb-4">
-              <Badge className={category?.color}>{category?.name}</Badge>
+              {category && <Badge className={category.color}>{category.name}</Badge>}
               <Badge variant="outline">{scheme.source}</Badge>
-              {scheme.district && (
+              {scheme.districtDetected && (
                 <Badge variant="outline" className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" /> {scheme.district}
+                  <MapPin className="w-3 h-3" /> {scheme.districtDetected}
                 </Badge>
               )}
             </div>
@@ -58,12 +80,11 @@ export default function SchemeDetails() {
             
             <div className="flex items-center text-sm text-gray-500 gap-6">
               <span className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" /> Published: {scheme.publishDate ? format(new Date(scheme.publishDate), "MMMM d, yyyy") : "N/A"}
+                <Calendar className="w-4 h-4" /> Published: {scheme.publishedDate ? format(new Date(scheme.publishedDate), "MMMM d, yyyy") : "N/A"}
               </span>
             </div>
           </div>
 
-          {/* Content */}
           <div className="p-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2 space-y-8">
               <section>
@@ -96,7 +117,6 @@ export default function SchemeDetails() {
               </section>
             </div>
 
-            {/* Sidebar */}
             <div className="space-y-6">
               <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
                 <h3 className="font-bold text-blue-900 mb-4">Quick Actions</h3>

@@ -1,15 +1,19 @@
+import { useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { CategoryGrid } from "@/components/CategoryGrid";
 import { Footer } from "@/components/Footer";
 import { SchemeCard } from "@/components/SchemeCard";
-import { MOCK_SCHEMES } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { fetchSchemes } from "@/lib/api";
 
 export default function Home() {
-  const recentSchemes = MOCK_SCHEMES.slice(0, 3);
+  const { data, isLoading } = useQuery({
+    queryKey: ["recent-schemes"],
+    queryFn: () => fetchSchemes({ page: 1, size: 3 }),
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -20,7 +24,6 @@ export default function Home() {
         
         <CategoryGrid />
 
-        {/* Recent Schemes Section */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-end mb-10">
@@ -35,11 +38,22 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {recentSchemes.map((scheme) => (
-                <SchemeCard key={scheme.id} scheme={scheme} />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="text-center py-12">
+                <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
+                <p className="text-gray-500 text-sm">Loading latest schemes...</p>
+              </div>
+            ) : data && data.schemes.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {data.schemes.map((scheme) => (
+                  <SchemeCard key={scheme.id} scheme={scheme} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                No schemes available yet. RSS feeds are being fetched...
+              </div>
+            )}
             
             <div className="mt-8 text-center sm:hidden">
               <Link href="/schemes">
@@ -51,7 +65,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA Section */}
         <section className="py-20 bg-primary text-white">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Need Help Finding a Scheme?</h2>

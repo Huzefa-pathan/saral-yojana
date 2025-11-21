@@ -1,20 +1,20 @@
 export interface Scheme {
   id: string;
   title: string;
-  district?: string;
-  category: string;
+  districtDetected?: string | null;
+  categoryDetected: string | null;
   source: "PIB" | "IndiaGov" | "MyGov" | "StateGov";
-  publishDate: string;
+  publishedDate: string | null;
   description: string;
   link: string;
   relevanceScore: number;
-  tags: string[];
+  fetchedAt: string;
 }
 
 export interface Category {
   id: string;
   name: string;
-  iconName: string; // Lucide icon name
+  iconName: string;
   color: string;
   description: string;
 }
@@ -85,79 +85,4 @@ export const DISTRICTS = [
   "Nandurbar", "Nashik", "Osmanabad", "Palghar", "Parbhani", "Pune", "Raigad", 
   "Ratnagiri", "Sangli", "Satara", "Sindhudurg", "Solapur", "Thane", "Wardha", 
   "Washim", "Yavatmal"
-];
-
-export const MOCK_SCHEMES: Scheme[] = [
-  {
-    id: "1",
-    title: "Pradhan Mantri Fasal Bima Yojana (PMFBY)",
-    category: "farmers",
-    district: "All Districts",
-    source: "IndiaGov",
-    publishDate: "2025-02-18",
-    description: "A flagship crop insurance scheme providing financial support to farmers suffering crop loss/damage arising out of unforeseen events. Covers all food & oilseed crops and annual commercial/horticultural crops.",
-    link: "#",
-    relevanceScore: 10,
-    tags: ["insurance", "crop", "farmers"]
-  },
-  {
-    id: "2",
-    title: "Dr. Panjabrao Deshmukh Vasatigruh Nirvah Bhatta Yojna",
-    category: "students",
-    district: "Pune",
-    source: "StateGov",
-    publishDate: "2025-02-15",
-    description: "Financial assistance for hostel maintenance allowance to children of registered laborers and farmers pursuing higher education in Maharashtra.",
-    link: "#",
-    relevanceScore: 9,
-    tags: ["scholarship", "hostel", "education"]
-  },
-  {
-    id: "3",
-    title: "Majhi Kanya Bhagyashree Scheme",
-    category: "women-child",
-    district: "All Districts",
-    source: "StateGov",
-    publishDate: "2025-02-10",
-    description: "An initiative to improve the girl child ratio and provide financial incentives to families for the education and health of girl children.",
-    link: "#",
-    relevanceScore: 8,
-    tags: ["girl child", "women", "financial aid"]
-  },
-  {
-    id: "4",
-    title: "Mahatma Jyotirao Phule Shetkari Karjmukti Yojana",
-    category: "farmers",
-    district: "Nagpur",
-    source: "PIB",
-    publishDate: "2025-02-12",
-    description: "Loan waiver scheme for farmers in Maharashtra. Eligible farmers will get a waiver of up to Rs. 2 lakhs on their crop loans.",
-    link: "#",
-    relevanceScore: 10,
-    tags: ["loan waiver", "farmers", "debt relief"]
-  },
-  {
-    id: "5",
-    title: "Ramai Awas Yojana",
-    category: "housing",
-    district: "All Districts",
-    source: "StateGov",
-    publishDate: "2025-01-28",
-    description: "Housing scheme for SC/ST families in rural areas of Maharashtra to provide pukka houses to homeless families.",
-    link: "#",
-    relevanceScore: 7,
-    tags: ["housing", "rural", "sc/st"]
-  },
-  {
-    id: "6",
-    title: "Chief Minister's Employment Generation Programme (CMEGP)",
-    category: "skill-dev",
-    district: "Mumbai City",
-    source: "MyGov",
-    publishDate: "2025-02-05",
-    description: "Credit-linked subsidy programme to generate employment opportunities in rural and urban areas of Maharashtra through setting up of new self-employment ventures.",
-    link: "#",
-    relevanceScore: 6,
-    tags: ["employment", "business", "subsidy"]
-  }
 ];
