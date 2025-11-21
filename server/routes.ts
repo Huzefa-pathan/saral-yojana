@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { fetchAndUpsertAllFeeds } from "./rssFetcher";
+import { seedDatabase } from "./seedData";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes
@@ -76,20 +77,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
 
-  // Auto-refresh every 2 hours
+  // Seed database with sample data on startup
+  console.log("[Server] Seeding database with sample schemes...");
+  await seedDatabase();
+
+  // Auto-refresh every 2 hours (RSS feeds - currently having connectivity issues)
   const TWO_HOURS = 1000 * 60 * 60 * 2;
   
-  // Initial fetch on startup
-  console.log("[Server] Triggering initial RSS fetch...");
+  // Initial RSS fetch attempt on startup (will fail gracefully if feeds are unavailable)
+  console.log("[Server] Attempting initial RSS fetch...");
   fetchAndUpsertAllFeeds().catch((error) => {
-    console.error("[Server] Initial RSS fetch error:", error);
+    console.error("[Server] RSS feeds unavailable:", error.message);
   });
 
-  // Schedule periodic fetches
+  // Schedule periodic RSS fetches (will fail gracefully if feeds are unavailable)
   setInterval(() => {
-    console.log("[Server] Triggering scheduled RSS fetch...");
+    console.log("[Server] Attempting scheduled RSS fetch...");
     fetchAndUpsertAllFeeds().catch((error) => {
-      console.error("[Server] Scheduled RSS fetch error:", error);
+      console.error("[Server] RSS feeds unavailable:", error.message);
     });
   }, TWO_HOURS);
 
