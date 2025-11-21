@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, MapPin, Filter, Mic } from "lucide-react";
+import { Search, MapPin, Filter } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -22,7 +22,7 @@ export function Hero() {
   };
 
   return (
-    <div className="relative w-full h-[600px] flex items-center justify-center overflow-hidden">
+    <div className="relative w-full min-h-[600px] flex items-center justify-center overflow-hidden py-20 md:py-0">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
@@ -43,8 +43,8 @@ export function Hero() {
         </p>
 
         {/* Search Box */}
-        <div className="bg-white p-4 rounded-2xl shadow-2xl max-w-4xl mx-auto flex flex-col md:flex-row gap-3 animate-in fade-in zoom-in-95 duration-700 delay-300">
-          <div className="flex-1 relative">
+        <div className="bg-white p-4 rounded-2xl shadow-2xl max-w-4xl mx-auto flex flex-col md:flex-row gap-3 animate-in fade-in zoom-in-95 duration-700 delay-300 items-center">
+          <div className="flex-1 relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input 
               placeholder="Search schemes (e.g., crop insurance)" 
@@ -87,20 +87,16 @@ export function Hero() {
           </div>
 
           <Button 
-            className="h-12 px-8 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
+            className="w-full md:w-auto h-12 px-8 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
             onClick={handleSearch}
           >
             Search
           </Button>
-          
-          <Button variant="ghost" size="icon" className="h-12 w-12 text-gray-400 hover:text-primary">
-             <Mic className="w-5 h-5" />
-          </Button>
         </div>
         
-        <div className="mt-6 flex items-center justify-center gap-4 text-sm text-white/80 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
+        <div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-white/80 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
           <span>Trending:</span>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
              <span className="bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 cursor-pointer transition-colors">Crop Insurance</span>
              <span className="bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 cursor-pointer transition-colors">Education Loan</span>
              <span className="bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 cursor-pointer transition-colors">Housing</span>

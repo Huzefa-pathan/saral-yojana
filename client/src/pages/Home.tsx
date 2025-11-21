@@ -1,6 +1,5 @@
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
-import { DistrictGrid } from "@/components/DistrictGrid";
 import { CategoryGrid } from "@/components/CategoryGrid";
 import { Footer } from "@/components/Footer";
 import { SchemeCard } from "@/components/SchemeCard";
@@ -18,8 +17,6 @@ export default function Home() {
       
       <main className="flex-grow">
         <Hero />
-        
-        <DistrictGrid />
         
         <CategoryGrid />
 
