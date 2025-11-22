@@ -81,8 +81,10 @@ export default function Schemes() {
                   <SelectValue placeholder="District" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Districts</SelectItem>
-                  {DISTRICTS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  <div className="max-h-60 overflow-y-auto">
+                    <SelectItem value="all">All Districts</SelectItem>
+                    {DISTRICTS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  </div>
                 </SelectContent>
               </Select>
             </div>
@@ -96,8 +98,10 @@ export default function Schemes() {
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {CATEGORIES.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  <div className="max-h-60 overflow-y-auto">
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {CATEGORIES.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  </div>
                 </SelectContent>
               </Select>
             </div>

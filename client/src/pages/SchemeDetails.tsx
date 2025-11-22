@@ -126,7 +126,19 @@ export default function SchemeDetails() {
                       Visit Official Website <ExternalLink className="w-4 h-4" />
                     </Button>
                   </a>
-                  <Button variant="outline" className="w-full gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="w-full gap-2"
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: scheme.title,
+                          text: scheme.description,
+                          url: window.location.href,
+                        });
+                      }
+                    }}
+                  >
                     Share Scheme <Share2 className="w-4 h-4" />
                   </Button>
                 </div>

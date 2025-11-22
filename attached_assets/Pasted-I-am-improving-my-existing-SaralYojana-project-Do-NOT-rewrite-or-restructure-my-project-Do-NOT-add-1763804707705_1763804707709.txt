@@ -1,0 +1,102 @@
+I am improving my existing SaralYojana project.
+Do NOT rewrite or restructure my project.
+Do NOT add unnecessary files.
+Make ONLY the following changes inside my current Replit codebase:
+
+🟩 1. Update RSS Fetcher (server/rssFetcher.ts)
+
+Modify ONLY the fetcher file:
+
+✔ Replace old RSS URLs with these working ones from services.india.gov.in:
+
+https://services.india.gov.in/feed/rss?cat_id=14&ln=en
+
+https://services.india.gov.in/feed/rss?cat_id=11&ln=en
+
+https://services.india.gov.in/feed/rss?cat_id=2&ln=en
+
+https://services.india.gov.in/feed/rss?cat_id=6&ln=en
+
+✔ Add scheme-only filtering
+
+Store an item ONLY if title or description contains any of:
+
+scheme, yojana, yojna, mission, assistance, subsidy, benefit, grant, welfare, support, fund
+
+✔ Apply my existing scoring logic
+
+Do NOT change it, only apply it after filtering.
+
+✔ Add retry wrapper around each RSS fetch
+
+Retry 3 times with 2 second delay.
+If a feed fails, skip it and continue.
+
+✔ Save only SCORE ≥ 5
+
+Do not change database schema or storage logic.
+
+🟦 2. Do NOT change any backend routes
+
+Keep:
+
+/api/schemes
+
+/api/scheme/:id
+
+/api/fetch-now
+
+Exactly as they are.
+
+🟨 3. UI Fixes — ONLY these 3 small changes
+(A) District dropdown scroll fix
+
+In the district dropdown component, wrap the options list in:
+
+<div className="max-h-60 overflow-y-auto">
+
+(B) Fix “Visit Official Website”
+
+Ensure the button uses:
+
+<a href={scheme.link} target="_blank" rel="noopener noreferrer">
+
+(C) Fix “Share Scheme”
+
+Use navigator.share:
+
+if (navigator.share) {
+  navigator.share({
+    title: scheme.title,
+    text: scheme.description,
+    url: window.location.href,
+  });
+}
+
+
+Do NOT modify any other UI sections.
+Do NOT change hero layout, trending, categories, or routing.
+
+🟪 4. Do NOT change anything else
+
+Do not:
+
+Touch multilingual system (I’ll add later)
+
+Modify storagePg.ts or db.ts
+
+Add new pages
+
+Change folder structure
+
+Rewrite components
+
+Replace Vite/React setup
+
+Add new dependencies unless required for RSS retry
+
+Only update RSS + dropdown scroll + share + visit link.
+
+🎯 Final Goal
+
+Update RSS to latest working feeds, filter only schemes, improve reliability, and fix 3 small UI issues without touching anything else in the project.

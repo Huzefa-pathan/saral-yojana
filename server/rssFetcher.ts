@@ -7,9 +7,15 @@ import { detectDistrict } from "@shared/districts";
 const parser = new Parser();
 
 const RSS_FEEDS = [
-  { url: "https://www.india.gov.in/rss/schemes.xml", source: "IndiaGov" },
-  { url: "https://pib.gov.in/RssFeed.aspx?ModId=6&Category=agriculture", source: "PIB" },
-  { url: "https://www.mygov.in/feeds/schemes.xml", source: "MyGov" },
+  { url: "https://services.india.gov.in/feed/rss?cat_id=14&ln=en", source: "ServicesIndia" },
+  { url: "https://services.india.gov.in/feed/rss?cat_id=11&ln=en", source: "ServicesIndia" },
+  { url: "https://services.india.gov.in/feed/rss?cat_id=2&ln=en", source: "ServicesIndia" },
+  { url: "https://services.india.gov.in/feed/rss?cat_id=6&ln=en", source: "ServicesIndia" },
+];
+
+const SCHEME_KEYWORDS = [
+  "scheme", "yojana", "yojna", "mission", "assistance", "subsidy", 
+  "benefit", "grant", "welfare", "support", "fund"
 ];
 
 const AGRICULTURE_KEYWORDS = [
@@ -27,6 +33,11 @@ const CATEGORIES = {
   "social-security": ["pension", "disability", "senior citizen", "social security", "welfare"],
   "tribal": ["tribal", "adivasi", "schedule tribe", "st community"]
 };
+
+function isScheme(title: string, description: string): boolean {
+  const text = `${title} ${description}`.toLowerCase();
+  return SCHEME_KEYWORDS.some(keyword => text.includes(keyword));
+}
 
 function detectCategory(text: string): string | null {
   const lowerText = text.toLowerCase();
@@ -81,13 +92,32 @@ function generateSchemeId(link: string): string {
   return createHash("sha256").update(link).digest("hex").substring(0, 16);
 }
 
+async function fetchWithRetry(url: string, maxRetries: number = 3): Promise<any> {
+  let lastError: any;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const feed = await parser.parseURL(url);
+      return feed;
+    } catch (error) {
+      lastError = error;
+      console.log(`[RSS Fetcher] Attempt ${attempt}/${maxRetries} failed for ${url}, retrying in 2s...`);
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+  }
+  
+  throw lastError;
+}
+
 export async function fetchAndUpsertAllFeeds(): Promise<void> {
   console.log("[RSS Fetcher] Starting to fetch all feeds...");
   
   for (const { url, source } of RSS_FEEDS) {
     try {
       console.log(`[RSS Fetcher] Fetching from ${source}: ${url}`);
-      const feed = await parser.parseURL(url);
+      const feed = await fetchWithRetry(url);
 
       for (const item of feed.items) {
         if (!item.link || !item.title) {
@@ -98,6 +128,11 @@ export async function fetchAndUpsertAllFeeds(): Promise<void> {
         const description = item.contentSnippet || item.content || "";
         const link = item.link;
         const publishedDate = item.pubDate ? new Date(item.pubDate) : null;
+
+        // Filter for scheme-only items
+        if (!isScheme(title, description)) {
+          continue;
+        }
 
         const district = detectDistrict(`${title} ${description}`);
         const category = detectCategory(`${title} ${description}`);
