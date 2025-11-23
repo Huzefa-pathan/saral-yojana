@@ -1,0 +1,90 @@
+We already have PostgreSQL + Drizzle set up (db.ts, drizzle.config.ts exist), so now please apply ALL of the following modifications precisely:
+
+PHASE 1 — PostgreSQL Schema Migration
+Extend the existing database schema via Drizzle and create the following tables:
+
+Table: schemes
+- id UUID PRIMARY KEY
+- title TEXT NOT NULL
+- category TEXT NOT NULL
+- district TEXT NULL
+- source TEXT NOT NULL
+- description TEXT NOT NULL
+- fullDescription TEXT
+- applyMode TEXT NOT NULL
+- applyOnlineLink TEXT
+- applyOfflineInfo TEXT
+
+Table: scheme_eligibility
+- id UUID PRIMARY KEY
+- scheme_id UUID REFERENCES schemes(id)
+- text TEXT NOT NULL
+
+Table: scheme_benefits
+- id UUID PRIMARY KEY
+- scheme_id UUID REFERENCES schemes(id)
+- text TEXT NOT NULL
+
+Table: scheme_documents
+- id UUID PRIMARY KEY
+- scheme_id UUID REFERENCES schemes(id)
+- text TEXT NOT NULL
+
+IMPORTANT RULES WHILE INSERTING:
+- If district is not specific → store as NULL (not “all”, not “Maharashtra”)
+- If fullDescription is missing → use description as fallback
+- If applyOnlineLink is broken → store NULL and use offline mode
+- AVOID DUPLICATE SCHEMES: if a scheme with the same title already exists in DB, do NOT insert another one
+
+PHASE 2 — Import ALL Schemes from PDF
+Extract every scheme from:
+/mnt/data/c8d10ea8-a9eb-44dc-91e9-af7f2c281d5b.pdf
+Then insert them into these DB tables:
+- Do NOT stop at 15, import ALL schemes from the PDF.
+- Populate eligibility, benefits, documents properly.
+- Use description for card view, fullDescription for detail view.
+
+PHASE 3 — Apply Online Link Validation
+Before writing applyOnlineLink into DB:
+- Send a HEAD request to validate.
+- If URL returns 200, 301, or 302 → store normally.
+- If URL returns 404 or fails → store NULL.
+- If applyOnlineLink is NULL, applyMode should be “offline”.
+
+PHASE 4 — Update Backend to Read From DB
+Update API routes:
+- /api/schemes → now fetch from PostgreSQL
+- /api/scheme/:id → fetch from PostgreSQL
+No more local in-memory data or JSON.
+
+PHASE 5 — UI Behavior & Data Display
+Scheme Cards should display:
+- Category badge (left)
+- Source badge (right) using SHORT TEXT:
+     If source === "state" → “State Govt”
+     If source === "central" → “Central Govt”
+- Title
+- District (if present)
+- Description preview (short)
+- “Read Details”
+
+Scheme Detail Page should display:
+- Title
+- Category + Source badges ("State Govt" / "Central Govt")
+- fullDescription
+- Eligibility
+- Benefits
+- Documents Required
+- Apply Online button ONLY if valid applyOnlineLink exists
+- If no valid link → only show Apply Offline information
+
+PHASE 6 — Remove RSS Logic
+Completely remove any RSS functionality, code, fetchers, cron jobs, RSS imports, or RSS fields.
+
+PHASE 7 — Do NOT Modify Anything Else
+- Do not change layout or styling
+- Do not alter hero search section
+- Do not modify navbar or home branding
+- Do not alter mobile layout
+- Do not modify district dropdown
+- Only apply the modifications listed above

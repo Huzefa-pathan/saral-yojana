@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { seedLocalSchemes } from "./localSchemes";
+import { seedAllSchemes } from "./seedSchemes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes
@@ -55,8 +55,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
   // Seed database with local schemes on startup
-  console.log("[Server] Seeding database with local schemes...");
-  await seedLocalSchemes();
+  console.log("[Server] Seeding database with all schemes...");
+  await seedAllSchemes();
 
   return httpServer;
 }

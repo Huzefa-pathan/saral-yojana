@@ -51,7 +51,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="text-center py-12 text-gray-500">
-                No schemes available yet. RSS feeds are being fetched...
+                No schemes available yet.
               </div>
             )}
             

@@ -9,6 +9,12 @@ import { ArrowLeft, MapPin, ExternalLink, Share2, FileText, CheckCircle, Loader2
 import { cn } from "@/lib/utils";
 import { fetchSchemeById } from "@/lib/api";
 
+function getSourceBadgeText(source: string): string {
+  if (source === "state") return "State Govt";
+  if (source === "central") return "Central Govt";
+  return source;
+}
+
 export default function SchemeDetails() {
   const { id } = useParams();
   
@@ -52,6 +58,11 @@ export default function SchemeDetails() {
     );
   }
 
+  // Extract text from eligibility, benefits, documents arrays
+  const eligibilityItems = Array.isArray(scheme.eligibility) ? scheme.eligibility.map((e: any) => e.text || e) : [];
+  const benefitsItems = Array.isArray(scheme.benefits) ? scheme.benefits.map((b: any) => b.text || b) : [];
+  const documentsItems = Array.isArray(scheme.documents) ? scheme.documents.map((d: any) => d.text || d) : [];
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
@@ -64,16 +75,16 @@ export default function SchemeDetails() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-8 border-b border-gray-100 bg-gradient-to-r from-white to-gray-50">
             <div className="flex flex-wrap gap-3 mb-4">
-              {category && <Badge className={category.color}>{category.name}</Badge>}
-              <Badge variant="outline">{scheme.source}</Badge>
+              {category && <Badge className={category.color} data-testid={`badge-category-${scheme.id}`}>{category.name}</Badge>}
+              <Badge variant="outline" data-testid={`badge-source-${scheme.id}`}>{getSourceBadgeText(scheme.source)}</Badge>
               {scheme.district && (
-                <Badge variant="outline" className="flex items-center gap-1">
+                <Badge variant="outline" className="flex items-center gap-1" data-testid={`badge-district-${scheme.id}`}>
                   <MapPin className="w-3 h-3" /> {scheme.district}
                 </Badge>
               )}
             </div>
             
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight" data-testid={`title-${scheme.id}`}>
               {scheme.title}
             </h1>
           </div>
@@ -84,47 +95,51 @@ export default function SchemeDetails() {
                 <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <FileText className="w-5 h-5 text-primary" /> Description
                 </h2>
-                <p className="text-gray-700 leading-relaxed text-lg">
-                  {scheme.fullDescription}
+                <p className="text-gray-700 leading-relaxed text-lg" data-testid={`description-${scheme.id}`}>
+                  {scheme.fullDescription || scheme.description}
                 </p>
               </section>
 
-              <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-primary" /> Eligibility
-                </h2>
-                <ul className="space-y-3 text-gray-700">
-                  {scheme.eligibility.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
+              {eligibilityItems.length > 0 && (
+                <section>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-primary" /> Eligibility
+                  </h2>
+                  <ul className="space-y-3 text-gray-700">
+                    {eligibilityItems.map((item: string, idx: number) => (
+                      <li key={idx} className="flex items-start gap-3" data-testid={`eligibility-${scheme.id}-${idx}`}>
+                        <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
 
-              <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-primary" /> Benefits
-                </h2>
-                <ul className="space-y-3 text-gray-700">
-                  {scheme.benefits.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
+              {benefitsItems.length > 0 && (
+                <section>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-primary" /> Benefits
+                  </h2>
+                  <ul className="space-y-3 text-gray-700">
+                    {benefitsItems.map((item: string, idx: number) => (
+                      <li key={idx} className="flex items-start gap-3" data-testid={`benefit-${scheme.id}-${idx}`}>
+                        <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
 
-              {scheme.documentsRequired.length > 0 && (
+              {documentsItems.length > 0 && (
                 <section>
                   <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <FileText className="w-5 h-5 text-primary" /> Documents Required
                   </h2>
                   <ul className="space-y-3 text-gray-700">
-                    {scheme.documentsRequired.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
+                    {documentsItems.map((item: string, idx: number) => (
+                      <li key={idx} className="flex items-start gap-3" data-testid={`document-${scheme.id}-${idx}`}>
                         <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
                         <span>{item}</span>
                       </li>
@@ -139,14 +154,14 @@ export default function SchemeDetails() {
                 <h3 className="font-bold text-blue-900 mb-4">Apply Now</h3>
                 <div className="space-y-3">
                   {scheme.applyMode !== "offline" && scheme.applyOnlineLink && (
-                    <a href={scheme.applyOnlineLink} target="_blank" rel="noopener noreferrer" className="block w-full">
+                    <a href={scheme.applyOnlineLink} target="_blank" rel="noopener noreferrer" className="block w-full" data-testid={`button-apply-online-${scheme.id}`}>
                       <Button className="w-full bg-primary hover:bg-blue-700 gap-2">
                         Apply Online <ExternalLink className="w-4 h-4" />
                       </Button>
                     </a>
                   )}
                   {scheme.applyMode !== "online" && scheme.applyOfflineInfo && (
-                    <div className="bg-white p-4 rounded-lg border border-blue-200">
+                    <div className="bg-white p-4 rounded-lg border border-blue-200" data-testid={`offline-info-${scheme.id}`}>
                       <p className="text-sm font-medium text-blue-900 mb-2">Apply Offline</p>
                       <p className="text-sm text-gray-700">{scheme.applyOfflineInfo}</p>
                     </div>
@@ -154,6 +169,7 @@ export default function SchemeDetails() {
                   <Button 
                     variant="outline" 
                     className="w-full gap-2"
+                    data-testid={`button-share-${scheme.id}`}
                     onClick={() => {
                       if (navigator.share) {
                         navigator.share({

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, timestamp, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -18,24 +18,44 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
 export const schemes = pgTable("schemes", {
-  id: text("id").primaryKey(),
+  id: varchar("id").primaryKey(),
   title: text("title").notNull(),
   category: text("category").notNull(),
   district: text("district"),
-  source: text("source").notNull().default("Central"),
+  source: text("source").notNull().default("central"),
   description: text("description").notNull(),
-  fullDescription: text("full_description").notNull(),
-  eligibility: text("eligibility").array().notNull().default(sql`ARRAY[]::text[]`),
-  benefits: text("benefits").array().notNull().default(sql`ARRAY[]::text[]`),
-  documentsRequired: text("documents_required").array().notNull().default(sql`ARRAY[]::text[]`),
+  fullDescription: text("full_description"),
   applyMode: text("apply_mode").notNull().default("online"),
   applyOnlineLink: text("apply_online_link"),
   applyOfflineInfo: text("apply_offline_info"),
 });
 
-export const insertSchemeSchema = createInsertSchema(schemes).omit({});
+export const schemeEligibility = pgTable("scheme_eligibility", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  schemeId: varchar("scheme_id").notNull().references(() => schemes.id),
+  text: text("text").notNull(),
+});
+
+export const schemeBenefits = pgTable("scheme_benefits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  schemeId: varchar("scheme_id").notNull().references(() => schemes.id),
+  text: text("text").notNull(),
+});
+
+export const schemeDocuments = pgTable("scheme_documents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  schemeId: varchar("scheme_id").notNull().references(() => schemes.id),
+  text: text("text").notNull(),
+});
+
+export const insertSchemeSchema = createInsertSchema(schemes).omit({
+  id: true,
+});
 
 export const selectSchemeSchema = createSelectSchema(schemes);
 
-export type InsertScheme = z.infer<typeof insertSchemeSchema>;
+export type InsertScheme = z.infer<typeof insertSchemeSchema> & { id: string };
 export type Scheme = typeof schemes.$inferSelect;
+export type SchemeEligibility = typeof schemeEligibility.$inferSelect;
+export type SchemeBenefit = typeof schemeBenefits.$inferSelect;
+export type SchemeDocument = typeof schemeDocuments.$inferSelect;
