@@ -1,14 +1,17 @@
 export interface Scheme {
   id: string;
   title: string;
-  districtDetected?: string | null;
-  categoryDetected: string | null;
-  source: "PIB" | "IndiaGov" | "MyGov" | "StateGov";
-  publishedDate: string | null;
+  category: string;
+  district?: string | null;
+  source: "Central" | "Maharashtra";
   description: string;
-  link: string;
-  relevanceScore: number;
-  fetchedAt: string;
+  fullDescription: string;
+  eligibility: string[];
+  benefits: string[];
+  documentsRequired: string[];
+  applyMode: "online" | "offline" | "both";
+  applyOnlineLink?: string | null;
+  applyOfflineInfo?: string | null;
 }
 
 export interface Category {

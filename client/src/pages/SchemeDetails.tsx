@@ -5,8 +5,7 @@ import { Footer } from "@/components/Footer";
 import { CATEGORIES } from "@/lib/data";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, MapPin, ExternalLink, Share2, FileText, CheckCircle, Loader2 } from "lucide-react";
-import { format } from "date-fns";
+import { ArrowLeft, MapPin, ExternalLink, Share2, FileText, CheckCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSchemeById } from "@/lib/api";
 
@@ -19,7 +18,7 @@ export default function SchemeDetails() {
     enabled: !!id,
   });
 
-  const category = scheme ? CATEGORIES.find(c => c.id === scheme.categoryDetected) : null;
+  const category = scheme ? CATEGORIES.find(c => c.id === scheme.category) : null;
 
   if (isLoading) {
     return (
@@ -67,9 +66,9 @@ export default function SchemeDetails() {
             <div className="flex flex-wrap gap-3 mb-4">
               {category && <Badge className={category.color}>{category.name}</Badge>}
               <Badge variant="outline">{scheme.source}</Badge>
-              {scheme.districtDetected && (
+              {scheme.district && (
                 <Badge variant="outline" className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" /> {scheme.districtDetected}
+                  <MapPin className="w-3 h-3" /> {scheme.district}
                 </Badge>
               )}
             </div>
@@ -77,12 +76,6 @@ export default function SchemeDetails() {
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
               {scheme.title}
             </h1>
-            
-            <div className="flex items-center text-sm text-gray-500 gap-6">
-              <span className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" /> Published: {scheme.publishedDate ? format(new Date(scheme.publishedDate), "MMMM d, yyyy") : "N/A"}
-              </span>
-            </div>
           </div>
 
           <div className="p-8 grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -92,40 +85,72 @@ export default function SchemeDetails() {
                   <FileText className="w-5 h-5 text-primary" /> Description
                 </h2>
                 <p className="text-gray-700 leading-relaxed text-lg">
-                  {scheme.description}
+                  {scheme.fullDescription}
                 </p>
               </section>
 
               <section>
                 <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-primary" /> Eligibility & Benefits
+                  <CheckCircle className="w-5 h-5 text-primary" /> Eligibility
                 </h2>
                 <ul className="space-y-3 text-gray-700">
-                  <li className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                    <span>Resident of Maharashtra State.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                    <span>Detailed eligibility criteria would be listed here based on the full scheme document.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                    <span>Specific benefits and subsidy amounts would be detailed here.</span>
-                  </li>
+                  {scheme.eligibility.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
                 </ul>
               </section>
+
+              <section>
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-primary" /> Benefits
+                </h2>
+                <ul className="space-y-3 text-gray-700">
+                  {scheme.benefits.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              {scheme.documentsRequired.length > 0 && (
+                <section>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-primary" /> Documents Required
+                  </h2>
+                  <ul className="space-y-3 text-gray-700">
+                    {scheme.documentsRequired.map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
             </div>
 
             <div className="space-y-6">
               <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
-                <h3 className="font-bold text-blue-900 mb-4">Quick Actions</h3>
+                <h3 className="font-bold text-blue-900 mb-4">Apply Now</h3>
                 <div className="space-y-3">
-                  <a href={scheme.link} target="_blank" rel="noopener noreferrer" className="block w-full">
-                    <Button className="w-full bg-primary hover:bg-blue-700 gap-2">
-                      Visit Official Website <ExternalLink className="w-4 h-4" />
-                    </Button>
-                  </a>
+                  {scheme.applyMode !== "offline" && scheme.applyOnlineLink && (
+                    <a href={scheme.applyOnlineLink} target="_blank" rel="noopener noreferrer" className="block w-full">
+                      <Button className="w-full bg-primary hover:bg-blue-700 gap-2">
+                        Apply Online <ExternalLink className="w-4 h-4" />
+                      </Button>
+                    </a>
+                  )}
+                  {scheme.applyMode !== "online" && scheme.applyOfflineInfo && (
+                    <div className="bg-white p-4 rounded-lg border border-blue-200">
+                      <p className="text-sm font-medium text-blue-900 mb-2">Apply Offline</p>
+                      <p className="text-sm text-gray-700">{scheme.applyOfflineInfo}</p>
+                    </div>
+                  )}
                   <Button 
                     variant="outline" 
                     className="w-full gap-2"
@@ -141,16 +166,6 @@ export default function SchemeDetails() {
                   >
                     Share Scheme <Share2 className="w-4 h-4" />
                   </Button>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                <h3 className="font-bold text-gray-900 mb-2">Need Help?</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Contact the department helpline for assistance with this scheme.
-                </p>
-                <div className="font-mono text-lg font-bold text-gray-800">
-                  1800-123-4567
                 </div>
               </div>
             </div>

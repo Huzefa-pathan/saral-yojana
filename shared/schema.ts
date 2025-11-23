@@ -20,19 +20,20 @@ export type User = typeof users.$inferSelect;
 export const schemes = pgTable("schemes", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
+  category: text("category").notNull(),
+  district: text("district"),
+  source: text("source").notNull().default("Central"),
   description: text("description").notNull(),
-  link: text("link").notNull().unique(),
-  publishedDate: timestamp("published_date", { withTimezone: true }),
-  source: text("source").notNull(),
-  relevanceScore: integer("relevance_score").notNull().default(0),
-  districtDetected: text("district_detected"),
-  categoryDetected: text("category_detected"),
-  fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().default(sql`now()`),
+  fullDescription: text("full_description").notNull(),
+  eligibility: text("eligibility").array().notNull().default(sql`ARRAY[]::text[]`),
+  benefits: text("benefits").array().notNull().default(sql`ARRAY[]::text[]`),
+  documentsRequired: text("documents_required").array().notNull().default(sql`ARRAY[]::text[]`),
+  applyMode: text("apply_mode").notNull().default("online"),
+  applyOnlineLink: text("apply_online_link"),
+  applyOfflineInfo: text("apply_offline_info"),
 });
 
-export const insertSchemeSchema = createInsertSchema(schemes).omit({
-  fetchedAt: true,
-});
+export const insertSchemeSchema = createInsertSchema(schemes).omit({});
 
 export const selectSchemeSchema = createSelectSchema(schemes);
 

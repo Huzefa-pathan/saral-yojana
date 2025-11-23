@@ -1,5 +1,4 @@
 import { type User, type InsertUser, type Scheme, type InsertScheme } from "@shared/schema";
-import { randomUUID } from "crypto";
 import { db } from "./db";
 import { users, schemes } from "@shared/schema";
 import { eq, ilike, desc, and, sql } from "drizzle-orm";
@@ -42,16 +41,20 @@ export class PostgresStorage implements IStorage {
       .insert(schemes)
       .values(scheme)
       .onConflictDoUpdate({
-        target: schemes.link,
+        target: schemes.id,
         set: {
           title: scheme.title,
-          description: scheme.description,
-          publishedDate: scheme.publishedDate,
+          category: scheme.category,
+          district: scheme.district,
           source: scheme.source,
-          relevanceScore: scheme.relevanceScore,
-          districtDetected: scheme.districtDetected,
-          categoryDetected: scheme.categoryDetected,
-          fetchedAt: sql`now()`,
+          description: scheme.description,
+          fullDescription: scheme.fullDescription,
+          eligibility: scheme.eligibility,
+          benefits: scheme.benefits,
+          documentsRequired: scheme.documentsRequired,
+          applyMode: scheme.applyMode,
+          applyOnlineLink: scheme.applyOnlineLink,
+          applyOfflineInfo: scheme.applyOfflineInfo,
         },
       })
       .returning();
@@ -69,11 +72,11 @@ export class PostgresStorage implements IStorage {
     const conditions = [];
 
     if (district) {
-      conditions.push(eq(schemes.districtDetected, district));
+      conditions.push(eq(schemes.district, district));
     }
 
     if (category) {
-      conditions.push(eq(schemes.categoryDetected, category));
+      conditions.push(eq(schemes.category, category));
     }
 
     if (q) {
@@ -96,7 +99,7 @@ export class PostgresStorage implements IStorage {
       .select()
       .from(schemes)
       .where(whereClause)
-      .orderBy(desc(schemes.fetchedAt))
+      .orderBy(desc(schemes.id))
       .limit(size)
       .offset(offset);
 
