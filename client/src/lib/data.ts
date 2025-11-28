@@ -9,6 +9,7 @@ export interface Scheme {
   eligibility: string[];
   benefits: string[];
   documentsRequired: string[];
+  documents?: string[];
   applyMode: "online" | "offline" | "both";
   applyOnlineLink?: string | null;
   applyOfflineInfo?: string | null;

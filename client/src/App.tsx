@@ -9,6 +9,7 @@ import Schemes from "@/pages/Schemes";
 import SchemeDetails from "@/pages/SchemeDetails";
 import Contact from "@/pages/Contact";
 import About from "@/pages/About";
+import Admin from "@/pages/Admin";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/scheme/:id" component={SchemeDetails} />
       <Route path="/contact" component={Contact} />
       <Route path="/about" component={About} />
+      <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
   );
