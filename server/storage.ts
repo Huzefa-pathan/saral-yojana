@@ -1,177 +1,151 @@
-import { type User, type InsertUser, type Scheme, type SchemeEligibility, type SchemeBenefit, type SchemeDocument } from "@shared/schema";
-import { db } from "./db";
-import { users, schemes, schemeEligibility, schemeBenefits, schemeDocuments } from "@shared/schema";
-import { eq, ilike, desc, and, sql } from "drizzle-orm";
+import { randomUUID } from "crypto";
+import type { Scheme, SchemeFilters, SchemeInput } from "@shared/schema";
+import { loadSchemes, saveSchemes } from "../backend/storage/jsonStorage";
 
-export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  
-  // Scheme operations with normalized data
-  insertScheme(scheme: { id: string; title: string; category: string; district?: string | null; source: string; description: string; fullDescription?: string | null; applyMode: string; applyOnlineLink?: string | null; applyOfflineInfo?: string | null; eligibility: string[]; benefits: string[]; documents: string[] }): Promise<void>;
-  listSchemes(params: {
-    page?: number;
-    size?: number;
-    district?: string;
-    category?: string;
-    q?: string;
-  }): Promise<{ schemes: Array<Scheme & { eligibility: SchemeEligibility[]; benefits: SchemeBenefit[]; documents: SchemeDocument[] }>; total: number }>;
-  getSchemeById(id: string): Promise<(Scheme & { eligibility: SchemeEligibility[]; benefits: SchemeBenefit[]; documents: SchemeDocument[] }) | undefined>;
+type SchemeRecord = Scheme;
+
+interface SchemeListResult {
+  schemes: SchemeRecord[];
+  total: number;
 }
 
-export class PostgresStorage implements IStorage {
-  async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+class JsonSchemeStorage {
+  async listSchemes(filters: SchemeFilters): Promise<SchemeListResult> {
+    const { page = 1, size = 20 } = filters;
+    const schemes = await this.readAll();
+    const filtered = schemes
+      .filter((scheme) => this.matchesFilters(scheme, filters))
+      .sort((a, b) => b.id.localeCompare(a.id));
+    const total = filtered.length;
+    const start = (Math.max(page, 1) - 1) * size;
+    const pageItems = filtered.slice(start, start + size);
+
+    return {
+      schemes: pageItems.map((scheme) => this.cloneScheme(scheme)),
+      total,
+    };
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
+  async getSchemeById(id: string): Promise<SchemeRecord | undefined> {
+    const schemes = await this.readAll();
+    const match = schemes.find((scheme) => scheme.id === id);
+    return match ? this.cloneScheme(match) : undefined;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
-    return user;
+  async createScheme(data: SchemeInput & { id?: string }): Promise<SchemeRecord> {
+    const schemes = await this.readAll();
+    const id = data.id ?? randomUUID();
+
+    if (schemes.some((scheme) => scheme.id === id)) {
+      const error = new Error("Scheme ID already exists");
+      (error as any).statusCode = 409;
+      throw error;
+    }
+
+    const record = this.normalizeScheme({ ...data, id });
+    schemes.push(record);
+    await saveSchemes(schemes);
+    return this.cloneScheme(record);
   }
 
-  async insertScheme(schemeData: { 
-    id: string; 
-    title: string; 
-    category: string; 
-    district?: string | null; 
-    source: string; 
-    description: string; 
-    fullDescription?: string | null; 
-    applyMode: string; 
-    applyOnlineLink?: string | null; 
-    applyOfflineInfo?: string | null; 
-    eligibility: string[]; 
-    benefits: string[]; 
-    documents: string[] 
-  }): Promise<void> {
-    // Check if scheme exists
-    const existing = await db.select().from(schemes).where(eq(schemes.id, schemeData.id));
-    
-    // If exists, skip (avoid duplicates)
-    if (existing.length > 0) {
-      return;
-    }
+  async updateScheme(id: string, data: SchemeInput): Promise<SchemeRecord | undefined> {
+    const schemes = await this.readAll();
+    const index = schemes.findIndex((scheme) => scheme.id === id);
 
-    // Insert main scheme
-    await db.insert(schemes).values({
-      id: schemeData.id,
-      title: schemeData.title,
-      category: schemeData.category,
-      district: schemeData.district || null,
-      source: schemeData.source,
-      description: schemeData.description,
-      fullDescription: schemeData.fullDescription || schemeData.description,
-      applyMode: schemeData.applyMode,
-      applyOnlineLink: schemeData.applyOnlineLink || null,
-      applyOfflineInfo: schemeData.applyOfflineInfo || null,
-    });
-
-    // Insert eligibility items
-    if (schemeData.eligibility.length > 0) {
-      await db.insert(schemeEligibility).values(
-        schemeData.eligibility.map(text => ({
-          schemeId: schemeData.id,
-          text,
-        }))
-      );
-    }
-
-    // Insert benefits
-    if (schemeData.benefits.length > 0) {
-      await db.insert(schemeBenefits).values(
-        schemeData.benefits.map(text => ({
-          schemeId: schemeData.id,
-          text,
-        }))
-      );
-    }
-
-    // Insert documents
-    if (schemeData.documents.length > 0) {
-      await db.insert(schemeDocuments).values(
-        schemeData.documents.map(text => ({
-          schemeId: schemeData.id,
-          text,
-        }))
-      );
-    }
-  }
-
-  async listSchemes(params: {
-    page?: number;
-    size?: number;
-    district?: string;
-    category?: string;
-    q?: string;
-  }): Promise<{ schemes: Array<Scheme & { eligibility: SchemeEligibility[]; benefits: SchemeBenefit[]; documents: SchemeDocument[] }>; total: number }> {
-    const { page = 1, size = 20, district, category, q } = params;
-    const conditions = [];
-
-    if (district && district !== "all") {
-      conditions.push(eq(schemes.district, district));
-    }
-
-    if (category) {
-      conditions.push(eq(schemes.category, category));
-    }
-
-    if (q) {
-      conditions.push(
-        sql`(${schemes.title} ILIKE ${`%${q}%`} OR ${schemes.description} ILIKE ${`%${q}%`})`
-      );
-    }
-
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-    const [countResult] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(schemes)
-      .where(whereClause);
-
-    const total = Number(countResult.count);
-
-    const offset = (page - 1) * size;
-    const schemesList = await db
-      .select()
-      .from(schemes)
-      .where(whereClause)
-      .orderBy(desc(schemes.id))
-      .limit(size)
-      .offset(offset);
-
-    // Fetch related data for each scheme
-    const schemesWithData = await Promise.all(
-      schemesList.map(async (scheme) => {
-        const eligibility = await db.select().from(schemeEligibility).where(eq(schemeEligibility.schemeId, scheme.id));
-        const benefits = await db.select().from(schemeBenefits).where(eq(schemeBenefits.schemeId, scheme.id));
-        const documents = await db.select().from(schemeDocuments).where(eq(schemeDocuments.schemeId, scheme.id));
-        return { ...scheme, eligibility, benefits, documents };
-      })
-    );
-
-    return { schemes: schemesWithData, total };
-  }
-
-  async getSchemeById(id: string): Promise<(Scheme & { eligibility: SchemeEligibility[]; benefits: SchemeBenefit[]; documents: SchemeDocument[] }) | undefined> {
-    const [scheme] = await db.select().from(schemes).where(eq(schemes.id, id));
-    
-    if (!scheme) {
+    if (index === -1) {
       return undefined;
     }
 
-    const eligibility = await db.select().from(schemeEligibility).where(eq(schemeEligibility.schemeId, id));
-    const benefits = await db.select().from(schemeBenefits).where(eq(schemeBenefits.schemeId, id));
-    const documents = await db.select().from(schemeDocuments).where(eq(schemeDocuments.schemeId, id));
+    const updated = this.normalizeScheme({ ...schemes[index], ...data, id });
+    schemes[index] = updated;
+    await saveSchemes(schemes);
+    return this.cloneScheme(updated);
+  }
 
-    return { ...scheme, eligibility, benefits, documents };
+  async deleteScheme(id: string): Promise<boolean> {
+    const schemes = await this.readAll();
+    const next = schemes.filter((scheme) => scheme.id !== id);
+
+    if (next.length === schemes.length) {
+      return false;
+    }
+
+    await saveSchemes(next);
+    return true;
+  }
+
+  async upsertScheme(data: SchemeInput & { id: string }): Promise<SchemeRecord> {
+    const existing = await this.getSchemeById(data.id);
+    if (existing) {
+      return (await this.updateScheme(data.id, data)) as SchemeRecord;
+    }
+    return this.createScheme(data);
+  }
+
+  async insertScheme(data: unknown): Promise<void> {
+    // Used exclusively by the seeding script, which provides fully populated records.
+    await this.upsertScheme(data as SchemeInput & { id: string });
+  }
+
+  private async readAll(): Promise<SchemeRecord[]> {
+    const data = await loadSchemes<SchemeRecord>();
+    return data.map((scheme) => this.normalizeScheme(scheme));
+  }
+
+  private matchesFilters(scheme: SchemeRecord, filters: SchemeFilters): boolean {
+    const { district, category, q } = filters;
+    if (district && district !== "all" && (scheme.district ?? "").toLowerCase() !== district.toLowerCase()) {
+      return false;
+    }
+    if (category && scheme.category !== category) {
+      return false;
+    }
+    if (q) {
+      const needle = q.toLowerCase();
+      const haystack = [
+        scheme.title,
+        scheme.description,
+        scheme.fullDescription ?? "",
+        scheme.category,
+        scheme.source,
+      ]
+        .join(" ")
+        .toLowerCase();
+      if (!haystack.includes(needle)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private normalizeScheme(scheme: SchemeInput & { id: string }): SchemeRecord {
+    return {
+      id: scheme.id,
+      title: scheme.title,
+      category: scheme.category,
+      district: scheme.district ?? null,
+      source: scheme.source,
+      description: scheme.description,
+      fullDescription: scheme.fullDescription ?? scheme.description,
+      applyMode: scheme.applyMode ?? "online",
+      applyOnlineLink: scheme.applyOnlineLink ?? null,
+      applyOfflineInfo: scheme.applyOfflineInfo ?? null,
+      eligibility: this.normalizeStringArray(scheme.eligibility),
+      benefits: this.normalizeStringArray(scheme.benefits),
+      documents: this.normalizeStringArray((scheme as any).documents ?? (scheme as any).documentsRequired),
+    };
+  }
+
+  private normalizeStringArray(value?: string[]): string[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+    return value.map((entry) => entry?.trim()).filter((entry): entry is string => Boolean(entry));
+  }
+
+  private cloneScheme(scheme: SchemeRecord): SchemeRecord {
+    return JSON.parse(JSON.stringify(scheme));
   }
 }
 
-export const storage = new PostgresStorage();
+export const storage = new JsonSchemeStorage();

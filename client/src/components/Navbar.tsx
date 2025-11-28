@@ -1,7 +1,6 @@
 import { Link } from "wouter";
 import { Logo } from "./ui/logo";
 import { Button } from "./ui/button";
-import { Phone } from "lucide-react";
 
 export function Navbar() {
   return (
@@ -15,14 +14,10 @@ export function Navbar() {
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <Link href="/schemes" className="hover:text-primary transition-colors">All Schemes</Link>
           <Link href="/about" className="hover:text-primary transition-colors">About</Link>
-          <Link href="/contact" className="hover:text-primary transition-colors">Contact</Link>
+          <Link href="/support" className="hover:text-primary transition-colors">Support</Link>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden lg:flex items-center gap-2 text-sm text-gray-600 bg-secondary/10 px-3 py-1.5 rounded-full">
-            <Phone className="w-4 h-4 text-secondary" />
-            <span>Helpline: 1800-123-4567</span>
-          </div>
           <Link href="/schemes">
             <Button className="bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg transition-all">
               Find Schemes

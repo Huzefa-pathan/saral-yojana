@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SchemeCard } from "@/components/SchemeCard";
-import { CATEGORIES, DISTRICTS } from "@/lib/data";
+import { CATEGORIES, STATES } from "@/lib/data";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter, X, Loader2 } from "lucide-react";
@@ -78,12 +78,12 @@ export default function Schemes() {
                 setPage(1);
               }}>
                 <SelectTrigger>
-                  <SelectValue placeholder="District" />
+                  <SelectValue placeholder="State" />
                 </SelectTrigger>
                 <SelectContent>
                   <div className="max-h-60 overflow-y-auto">
-                    <SelectItem value="all">All Districts</SelectItem>
-                    {DISTRICTS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                    <SelectItem value="all">All States</SelectItem>
+                    {STATES.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                   </div>
                 </SelectContent>
               </Select>

@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { Logo } from "./ui/logo";
-import { Facebook, Twitter, Instagram, Youtube, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 export function Footer() {
   return (
@@ -12,12 +12,6 @@ export function Footer() {
             <p className="text-sm text-slate-400 leading-relaxed">
               Empowering citizens of Maharashtra with easy access to government schemes and welfare programs.
             </p>
-            <div className="flex gap-4">
-              <a href="#" className="hover:text-white transition-colors"><Facebook className="w-5 h-5" /></a>
-              <a href="#" className="hover:text-white transition-colors"><Twitter className="w-5 h-5" /></a>
-              <a href="#" className="hover:text-white transition-colors"><Instagram className="w-5 h-5" /></a>
-              <a href="#" className="hover:text-white transition-colors"><Youtube className="w-5 h-5" /></a>
-            </div>
           </div>
 
           <div>
@@ -26,7 +20,7 @@ export function Footer() {
               <li><Link href="/" className="hover:text-primary transition-colors">Home</Link></li>
               <li><Link href="/schemes" className="hover:text-primary transition-colors">Browse Schemes</Link></li>
               <li><Link href="/about" className="hover:text-primary transition-colors">About Us</Link></li>
-              <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Support</Link></li>
+              <li><Link href="/support" className="hover:text-primary transition-colors">Support</Link></li>
             </ul>
           </div>
 

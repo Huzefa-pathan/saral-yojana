@@ -7,7 +7,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Schemes from "@/pages/Schemes";
 import SchemeDetails from "@/pages/SchemeDetails";
-import Contact from "@/pages/Contact";
+import Support from "@/pages/Support";
 import About from "@/pages/About";
 import Admin from "@/pages/Admin";
 
@@ -17,7 +17,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/schemes" component={Schemes} />
       <Route path="/scheme/:id" component={SchemeDetails} />
-      <Route path="/contact" component={Contact} />
+      <Route path="/support" component={Support} />
       <Route path="/about" component={About} />
       <Route path="/admin" component={Admin} />
       <Route component={NotFound} />

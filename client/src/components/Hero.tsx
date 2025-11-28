@@ -3,7 +3,7 @@ import { Search, MapPin, Filter } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { DISTRICTS, CATEGORIES } from "@/lib/data";
+import { STATES, CATEGORIES } from "@/lib/data";
 import { useLocation } from "wouter";
 import heroBg from "@assets/generated_images/hero_background_of_lush_agriculture_fields_in_maharashtra.png";
 
@@ -59,11 +59,11 @@ export function Hero() {
               <SelectTrigger className="h-12 border-gray-200 bg-gray-50 focus:bg-white">
                 <div className="flex items-center gap-2 text-gray-600">
                   <MapPin className="w-4 h-4" />
-                  <SelectValue placeholder="District" />
+                  <SelectValue placeholder="State" />
                 </div>
               </SelectTrigger>
               <SelectContent>
-                {DISTRICTS.map((d) => (
+                {STATES.map((d) => (
                   <SelectItem key={d} value={d}>{d}</SelectItem>
                 ))}
               </SelectContent>
