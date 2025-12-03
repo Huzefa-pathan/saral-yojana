@@ -40,3 +40,35 @@ export async function fetchSchemeById(id: string): Promise<Scheme> {
 
   return response.json();
 }
+export async function adminLogin(credentials: { username: string; password: string }) {
+  const res = await fetch("/api/admin/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  });
+
+  if (!res.ok) {
+    throw new Error("Invalid username or password");
+  }
+
+  return res.json();
+}
+
+export async function adminLogout() {
+  await fetch("/api/admin/logout", { method: "POST" });
+}
+
+export interface AuthStatusResponse {
+  isAuthenticated: boolean;
+  username?: string;
+}
+
+export async function checkAdminStatus(): Promise<AuthStatusResponse> {
+  const res = await fetch("/api/admin/check");
+  
+  if (!res.ok) {
+    return { isAuthenticated: false };
+  }
+
+  return res.json();
+}

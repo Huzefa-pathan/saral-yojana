@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { ReviewSystem } from "@/components/ReviewSystem";
 
 const SUPPORT_SECTIONS = [
   {
@@ -58,10 +59,9 @@ export default function Support() {
       <main className="flex-grow container mx-auto px-4 py-12">
         <div className="max-w-5xl mx-auto space-y-12">
           <header className="text-center space-y-4">
-            <h1 className="text-4xl font-bold text-gray-900">Support & State Helplines</h1>
+            <h1 className="text-4xl font-bold text-gray-900">Support Helplines</h1>
             <p className="text-lg text-gray-600 leading-relaxed">
-              Saral Yojana is an informational platform only. For official assistance, please contact
-              the verified Government of Maharashtra helpline numbers below.
+              Here are the verified Government of Maharashtra helpline numbers below.
             </p>
           </header>
 
@@ -80,6 +80,8 @@ export default function Support() {
               </div>
             ))}
           </section>
+
+          <ReviewSystem />
         </div>
       </main>
 
@@ -87,4 +89,3 @@ export default function Support() {
     </div>
   );
 }
-

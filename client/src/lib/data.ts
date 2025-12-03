@@ -39,7 +39,7 @@ export const CATEGORIES: Category[] = [
     description: "Scholarships, loans, and skill development"
   },
   {
-    id: "women-child",
+    id: "women_child",
     name: "Women & Child",
     iconName: "Baby",
     color: "bg-pink-100 text-pink-700",

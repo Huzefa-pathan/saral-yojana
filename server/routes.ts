@@ -1,7 +1,9 @@
 import express, { type Express, type Response } from "express";
+import { adminLogin, adminLogout, authenticateAdmin, checkAuthStatus } from "./auth";
 import { createServer, type Server } from "http";
 import { randomUUID } from "crypto";
 import { storage } from "./storage";
+import { trackEvent, getAnalytics } from "./analytics";
 import { seedAllSchemes } from "./seedSchemes";
 import type { SchemeApplyMode, SchemeSource } from "@shared/schema";
 
@@ -108,12 +110,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // GET /api/schemes - List schemes with pagination and filters
   app.get("/api/schemes", async (req, res) => {
+    // Track page view for schemes page
+    trackEvent("pageView");
     try {
       const page = req.query.page ? parseInt(req.query.page as string) : 1;
       const size = req.query.size ? parseInt(req.query.size as string) : 20;
       const district = req.query.district as string | undefined;
       const category = req.query.category as string | undefined;
       const q = req.query.q as string | undefined;
+      
+      if (q) {
+        trackEvent("schemeSearch");
+      }
 
       const result = await storage.listSchemes({
         page,
@@ -136,7 +144,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET /api/scheme/:id - Get single scheme by ID
+
+  // GET /api/reviews - List all reviews
+  app.get("/api/reviews", async (_req, res) => {
+    try {
+      const reviews = await storage.listReviews();
+      res.json(reviews);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      res.status(500).json({ error: "Failed to fetch reviews" });
+    }
+  });
+
+  // POST /api/reviews - Submit a new review
+  app.post("/api/reviews", async (req, res) => {
+    try {
+      const { username, message } = req.body;
+      if (!message || typeof message !== "string" || message.trim().length === 0) {
+        return res.status(400).json({ error: "Message is required" });
+      }
+      const review = await storage.addReview(username, message);
+      res.status(201).json(review);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      res.status(500).json({ error: "Failed to submit review" });
+    }
+  });
+
+  // GET /api/scheme/:id - Get single scheme by ID
   app.get("/api/scheme/:id", async (req, res) => {
+    // Track page view for scheme details page
+    trackEvent("pageView");
     try {
       const { id } = req.params;
       const scheme = await storage.getSchemeById(id);
@@ -152,11 +190,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/login", (_req, res) => {
-    res.json({ token: "admin" });
-  });
+  app.post("/api/admin/login", adminLogin);
+  app.post("/api/admin/logout", adminLogout);
+  app.get("/api/admin/check", authenticateAdmin, checkAuthStatus);
 
   const adminRouter = express.Router();
+  adminRouter.use(authenticateAdmin);
+  
+  adminRouter.get("/analytics", async (_req, res) => {
+    try {
+      const analytics = await getAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
 
   adminRouter.get("/schemes", async (_req, res) => {
     const result = await storage.listSchemes({
@@ -283,6 +332,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/admin", adminRouter);
 
   const httpServer = createServer(app);
+
+  // Track initial site visit
+  trackEvent("visit");
 
   // Seed database with local schemes on startup
   console.log("[Server] Seeding database with all schemes...");

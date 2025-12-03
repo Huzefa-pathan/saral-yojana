@@ -27,7 +27,7 @@ export function Hero() {
       <div className="absolute inset-0 z-0">
         <img 
           src={heroBg} 
-          alt="Maharashtra Agriculture" 
+          alt="Maharashtra agriculture and citizens" 
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 to-primary/40" />
@@ -36,10 +36,11 @@ export function Hero() {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-700">
-          Saral Yojana Maharashtra
+          Saral Yojana
         </h1>
+
         <p className="text-xl text-slate-100 mb-10 max-w-2xl mx-auto drop-shadow-md animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-          Connecting citizens with government welfare schemes. Find benefits for farmers, students, women, and more.
+          Search Central and State schemes by state, category, and keywords – all in one simple, citizen-friendly place.
         </p>
 
         {/* Search Box */}
@@ -47,7 +48,7 @@ export function Hero() {
           <div className="flex-1 relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input 
-              placeholder="Search schemes (e.g., crop insurance)" 
+              placeholder="Search schemes by name, benefit, or keyword" 
               className="pl-10 h-12 border-gray-200 bg-gray-50 focus:bg-white transition-colors text-base"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -59,7 +60,7 @@ export function Hero() {
               <SelectTrigger className="h-12 border-gray-200 bg-gray-50 focus:bg-white">
                 <div className="flex items-center gap-2 text-gray-600">
                   <MapPin className="w-4 h-4" />
-                  <SelectValue placeholder="State" />
+                  <SelectValue placeholder="Select state" />
                 </div>
               </SelectTrigger>
               <SelectContent>
@@ -75,7 +76,7 @@ export function Hero() {
               <SelectTrigger className="h-12 border-gray-200 bg-gray-50 focus:bg-white">
                 <div className="flex items-center gap-2 text-gray-600">
                   <Filter className="w-4 h-4" />
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder="Select category" />
                 </div>
               </SelectTrigger>
               <SelectContent>
@@ -90,18 +91,24 @@ export function Hero() {
             className="w-full md:w-auto h-12 px-8 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
             onClick={handleSearch}
           >
-            Search
+            Search schemes
           </Button>
         </div>
         
-        <div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-white/80 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
-          <span>Trending:</span>
+        {/* <div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-white/80 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
+          <span>Popular searches:</span>
           <div className="flex flex-wrap justify-center gap-2">
-             <span className="bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 cursor-pointer transition-colors">Crop Insurance</span>
-             <span className="bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 cursor-pointer transition-colors">Education Loan</span>
-             <span className="bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 cursor-pointer transition-colors">Housing</span>
+            <span className="bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 cursor-pointer transition-colors">
+              Crop insurance for farmers
+            </span>
+            <span className="bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 cursor-pointer transition-colors">
+              Education loan for students
+            </span>
+            <span className="bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 cursor-pointer transition-colors">
+              Affordable housing schemes
+            </span>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

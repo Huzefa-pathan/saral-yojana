@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import type { Scheme, SchemeFilters, SchemeInput } from "@shared/schema";
-import { loadSchemes, saveSchemes } from "../backend/storage/jsonStorage";
+import { loadSchemes, saveSchemes, loadReviews, saveReviews, type Review } from "./jsonStorage";
 
 type SchemeRecord = Scheme;
 
@@ -10,6 +10,23 @@ interface SchemeListResult {
 }
 
 class JsonSchemeStorage {
+  async listReviews(): Promise<Review[]> {
+    const reviews = await loadReviews();
+    return reviews.sort((a, b) => b.timestamp - a.timestamp);
+  }
+
+  async addReview(username: string, message: string): Promise<Review> {
+    const reviews = await loadReviews();
+    const newReview: Review = {
+      id: randomUUID(),
+      username: username.trim() || "Anonymous",
+      message: message.trim(),
+      timestamp: Date.now(),
+    };
+    reviews.push(newReview);
+    await saveReviews(reviews);
+    return newReview;
+  }
   async listSchemes(filters: SchemeFilters): Promise<SchemeListResult> {
     const { page = 1, size = 20 } = filters;
     const schemes = await this.readAll();

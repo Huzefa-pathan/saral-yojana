@@ -9,7 +9,8 @@ import Schemes from "@/pages/Schemes";
 import SchemeDetails from "@/pages/SchemeDetails";
 import Support from "@/pages/Support";
 import About from "@/pages/About";
-import Admin from "@/pages/Admin";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
 
 function Router() {
   return (
@@ -19,7 +20,10 @@ function Router() {
       <Route path="/scheme/:id" component={SchemeDetails} />
       <Route path="/support" component={Support} />
       <Route path="/about" component={About} />
-      <Route path="/admin" component={Admin} />
+
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin" component={AdminDashboard} />
+
       <Route component={NotFound} />
     </Switch>
   );

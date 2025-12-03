@@ -9,3 +9,4 @@ vite.config.ts.*
 .replit
 replit.md
 attached_assets
+/data

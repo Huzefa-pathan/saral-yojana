@@ -1,4 +1,5 @@
 import { storage } from "./storage";
+import { saveSchemes } from "./jsonStorage"; 
 
 interface SchemeData {
   id: string;
@@ -666,21 +667,19 @@ const ALL_SCHEMES: SchemeData[] = [
 
 export async function seedAllSchemes(): Promise<void> {
   console.log("[Seeds] Starting to seed all schemes...");
+
+  await saveSchemes([]);
+
   let seeded = 0;
-  let skipped = 0;
 
   for (const scheme of ALL_SCHEMES) {
     try {
       await storage.insertScheme(scheme);
       seeded++;
     } catch (error) {
-      if (error instanceof Error && error.message.includes("duplicate")) {
-        skipped++;
-      } else {
-        console.error(`[Seeds] Error seeding ${scheme.title}:`, error);
-      }
+      console.error(`[Seeds] Error seeding ${scheme.title}:`, error);
     }
   }
 
-  console.log(`[Seeds] Completed! Seeded: ${seeded}, Skipped (duplicates): ${skipped}, Total schemes: ${ALL_SCHEMES.length}`);
+  console.log(`[Seeds] Completed! Seeded: ${seeded}`);
 }
