@@ -10,7 +10,7 @@ export function Footer() {
           {/* Logo + Text */}
           <div className="space-y-4">
             <Link href="/" className="inline-block">
-              <img src="/logo.png" alt="Saral Yojana Logo" className="h-10 w-auto" />
+              <img src="/footer_logo.png" alt="Saral Yojana Logo" className="h-10 w-auto" />
             </Link>
             
             <p className="text-sm text-slate-400 leading-relaxed">
